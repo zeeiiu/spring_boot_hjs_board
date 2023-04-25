@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Insert title here</title>
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script type="text/javascript">
+   /*    $.ajax({
+      url : '서비스 주소'
+      , data : '서비스 처리에 필요한 인자값'
+      , type : 'HTTP방식' (POST/GET 등)
+      , dataType : 'return 받을 데이터 타입' (json, text 등)
+      , success : function('결과값'){
+      // 서비스 성공 시 처리 할 내용
+      }, error : function('결과값'){
+      // 서비스 실패 시 처리 할 내용
+      }
+   }); 
+   */
+
+
+   
+   </script>
+<!-- http://localhost:8282/rest_content_view.html?bid=254 -->
+<script type="text/javascript">
+      $(document).ready(function(){
+         
+         let searchParams = new URLSearchParams(window.location.search)
+         console.log(searchParams.has('bid'));   
+         
+         let bid = searchParams.get('bid')
+         console.log(bid);
+         
+         $.ajax({
+             type : "GET",
+             url : "/rboard/" + bid,
+             success: function (board) {       
+                 
+                console.log(board); 
+                $("#input_hidden").val(board.bid);
+                $("#td_bid").text(board.bid);
+                $("#td_hit").text(board.bhit);
+                
+                $("#input_bname").val(board.bname);
+                $("#input_btitle").val(board.btitle);
+                $("#textarea_bcontent").text(board.bcontent);             
+                
+             },
+             error: function (e) {
+                 console.log(e);
+             }
+         })   
+         
+      });   
+      
+      </script>
+
+<!-- 수정 -->
+<script type="text/javascript">
+      
+         $(document).ready(function(){
+        	 
+        	   //prevendDefault()는 href로 연결해 주지 않고 단순히 click에 대한 처리를 하도록 해준다.
+        	 $("#updateForm").submit(function(event){  /* submit을 누르면 원래는 action으로 날라가는데 여기서 낚아챔 */
+        		 
+        		   event.preventDefault();
+        	       
+        	 		console.log("ajax 호출전"); 
+        	         
+        	          var bname = $("#input_bname").val();
+        	          var btitle = $("#input_btitle").val();
+        	          var bcontent = $("#textarea_bcontent").text();
+        	          var bid = $("#input_hidden").val();
+        	          
+        	           var form = {
+        	                 bid: bid,
+        	                 bname: bname,
+        	                 btitle: btitle,
+        	                 bcontent: bcontent
+        	           };
+        	          
+        	         $.ajax({
+        	             type : "PUT", // 수정은 기본적으로 put으로 줌. 개발자들과의 약속
+        	             url : "/rboard/" + bid,
+        	             cashe:false,
+        	             contentType:'application/json; charset=utf-8',  // 제시슨으로 보내겠다라는 것을 아작스에게 알려줌. var에 있는 객체를 보낸다고!
+        	             data: JSON.stringify(form),  /* 자바스크립트 객체를 제이슨으로 바꿈. 서버쪽에서는 제이슨으로 받음*/ 
+        	             success: function (result) {       
+        	                    console.log("업데이트 된 개수" + result); 
+        	                   
+        	                    $(location).attr('href', '/rest_list.html')   // loication.href = '/rest_list.html' $대신 이렇게 써도 됨! 둘다 같은거!        
+        	             },
+        	             error: function (e) {
+        	                 console.log(e);
+        	             }
+        	         })
+        	          
+        	      });
+        	   });   
+
+        
+        	 
+        
+      
+      
+      
+   </script>
+</head>
+<body>
+	<table id="list-table" width="500" cellpadding="0" cellspacing="0"
+		border="1">
+		<form id="updateForm" action="modify" method="post">
+			<input id="input_hidden" type="hidden" name="bid" value="">
+			<tr>
+				<td>번호</td>
+				<td id="td_bid"></td>
+			</tr>
+			<tr>
+				<td>히트</td>
+				<td id="td_hit"></td>
+			</tr>
+			<tr>
+				<td>이름</td>
+				<td><input id="input_bname" type="text" name="bname" value=""></td>
+			</tr>
+			<tr>
+				<td>제목</td>
+				<td><input id="input_btitle" type="text" name="btitle" value=""></td>
+			</tr>
+			<tr>
+				<td>내용</td>
+				<td><textarea id="textarea_bcontent" rows="10" name="bcontent"></textarea></td>
+			</tr>
+			<tr>
+				<td colspan="2"><input id="input_modify" type="submit"
+					value="수정"> &nbsp;&nbsp; <a href="list">목록보기</a>
+					&nbsp;&nbsp; <a id="a-delete"
+					href="${pageContext.request.contextPath}/rest/delete?bId=${content_view.bId}">삭제</a>
+					&nbsp;&nbsp; <a href="reply_view?bId=${content_view.bId}">답변</a></td>
+
+			</tr>
+		</form>
+	</table>
+</body>
+</html>
